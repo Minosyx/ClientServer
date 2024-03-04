@@ -8,9 +8,9 @@ namespace Serwer
 {
     public class Server
     {
-        private Dictionary<string, IServiceModule> services;
-        private List<IListener> listeners;
-        private List<ICommunicator> communicators;
+        private Dictionary<string, IServiceModule> services = new();
+        private List<IListener> listeners = new();
+        private List<ICommunicator> communicators = new();
 
         public void AddServiceModule(string name, IServiceModule module)
         {
@@ -20,6 +20,7 @@ namespace Serwer
         public void AddCommunicator(ICommunicator communicator)
         {
             communicators.Add(communicator);
+            communicator.Start(ServiceCenter, RemoveCommunicator);
         }
 
         public void AddListener(IListener listener)
@@ -40,6 +41,34 @@ namespace Serwer
         public void RemoveListener(IListener listener)
         {
             listeners.Remove(listener);
+        }
+
+        public void Start()
+        {
+            foreach (IListener listener in listeners)
+            {
+                listener.Start(AddCommunicator);
+            }
+        }
+
+        public string ServiceCenter(string command)
+        {
+            try
+            {
+                var serviceName = GetCommandType(command);
+                var service = services[serviceName];
+                return service.AnswerCommand(command);
+            }
+            catch (Exception e)
+            {
+                return $"Service failure with exception: {e.Message}";
+            }
+        }
+
+        private string GetCommandType(string command)
+        {
+            var spaceIndex = command.IndexOf(' ');
+            return command[..spaceIndex];
         }
     }
 }
