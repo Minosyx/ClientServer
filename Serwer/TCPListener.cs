@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 
 namespace Serwer
@@ -8,7 +9,9 @@ namespace Serwer
     {
         private readonly Thread _thread;
         private int _portNo;
-        private CommunicatorD onConnect;
+        private CommunicatorD? _onConnect;
+        private TcpListener _server;
+        private bool _shouldTerminate = false;
 
         public TCPListener(int portNo)
         {
@@ -16,26 +19,29 @@ namespace Serwer
             _thread = new Thread(Listen);
         }
 
-        public void Start(CommunicatorD onConnect)
+        public void Start(CommunicatorD? onConnect)
         {
-            onConnect = onConnect;
+            _onConnect = onConnect;
+            _shouldTerminate = false;
             _thread.Start();
         }
 
         public void Stop()
         {
-            throw new NotImplementedException();
+            _shouldTerminate = true;
+            _server.Stop();
         }
 
         private void Listen()
         {
-            var server = new TcpListener(IPAddress.Any, _portNo);
-            server.Start();
-            while (true)
+            _server = new TcpListener(IPAddress.Any, _portNo);
+            _server.Start();
+            while (!_shouldTerminate)
             {
-                var client = server.AcceptTcpClient();
-                var communicator = new TCPCommunicator(client);
-                onConnect(communicator);
+                TcpClient client = _server.AcceptTcpClient();
+                if (client == null) continue;
+                TCPCommunicator communicator = new(client);
+                _onConnect?.Invoke(communicator);
             }
         }
     }

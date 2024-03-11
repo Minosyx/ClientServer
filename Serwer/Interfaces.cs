@@ -22,7 +22,7 @@ namespace Serwer
 
     public interface IListener
     {
-        void Start(CommunicatorD onConnect);
+        void Start(CommunicatorD? onConnect);
         void Stop();
     }
 }
