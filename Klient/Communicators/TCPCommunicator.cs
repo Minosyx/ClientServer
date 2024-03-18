@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Klient
+namespace Klient.Communicators
 {
     public class TCPCommunicator : ClientCommunicator
     {
@@ -20,14 +20,18 @@ namespace Klient
         public override string QA(string question)
         {
             WriteLine(question);
-            StringBuilder sb = new();
-            while (true)
+            string answer = string.Empty;
+            do
             {
-                string line = ReadLine();
-                if (line.LastIndexOf('\n') == -1) break;
-                sb.Append(line);
-            }
-            return sb.ToString();
+                answer += ReadLine();
+            } while (answer.LastIndexOf('\n') == 1);
+
+            return answer;
+        }
+
+        public override void Close()
+        {
+            _client.Close();
         }
 
         public void WriteLine(string line)
@@ -39,7 +43,7 @@ namespace Klient
 
         public string ReadLine()
         {
-            byte[] data = new byte[1024];
+            byte[] data = new byte[4096];
             NetworkStream stream = _client.GetStream();
             int len = stream.Read(data, 0, data.Length);
             return Encoding.ASCII.GetString(data, 0, len);

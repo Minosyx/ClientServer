@@ -1,4 +1,6 @@
-﻿namespace Klient
+﻿using Klient.Communicators;
+
+namespace Klient.Clients
 {
     public abstract class QAClient
     {

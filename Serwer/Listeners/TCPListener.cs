@@ -1,9 +1,10 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using Serwer.Communicators;
 
 
-namespace Serwer
+namespace Serwer.Listeners
 {
     internal class TCPListener : IListener
     {

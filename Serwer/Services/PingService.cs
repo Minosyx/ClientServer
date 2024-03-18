@@ -3,7 +3,7 @@ using Wspólne;
 
 namespace Serwer
 {
-    internal class PingService : IServiceModule
+    public class PingService : IServiceModule
     {
         public PingService()
         {
@@ -12,7 +12,7 @@ namespace Serwer
         public string AnswerCommand(string command)
         {
             var answerLength = GetAnswerLength(command);
-            return "ping " + CommandTools.GenerateRandomAnswer(answerLength - 6) + '\n';
+            return "ping " + CommonTools.GenerateRandomAnswer(answerLength - 6) + '\n';
         }
 
         private int GetAnswerLength(string command)

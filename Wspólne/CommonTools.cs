@@ -1,6 +1,6 @@
 ﻿namespace Wspólne
 {
-    public static class CommandTools
+    public static class CommonTools
     {
         public static string GenerateRandomAnswer(int length)
         {
@@ -11,6 +11,11 @@
                 chars[i] = (char)('A' + i % m);
             }
             return new string(chars);
+        }
+
+        public static string SubstringMax(this string str, int len)
+        {
+            return str.Substring(0, Math.Min(str.Length, len));
         }
     }
 }
