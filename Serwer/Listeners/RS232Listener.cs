@@ -7,18 +7,18 @@ using Serwer.Communicators;
 
 namespace Serwer.Listeners
 {
-    public class FileListener(params string[] paths) : IListener
+    public class RS232Listener(params string[] ports) : IListener
     {
         private CommunicatorD? _onConnect;
-        private List<FileCommunicator> _communicators;
+        private List<RS232Communicator> _communicators;
 
         public void Start(CommunicatorD? onConnect)
         {
             _onConnect = onConnect;
-            _communicators = new List<FileCommunicator>();
-            foreach (var path in paths)
+            _communicators = new List<RS232Communicator>();
+            foreach (var port in ports)
             {
-                var communicator = new FileCommunicator(path);
+                var communicator = new RS232Communicator(port);
                 _communicators.Add(communicator);
                 _onConnect?.Invoke(communicator);
             }

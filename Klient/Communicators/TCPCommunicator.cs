@@ -19,7 +19,7 @@ namespace Klient.Communicators
             do
             {
                 answer += ReadLine();
-            } while (answer.LastIndexOf('\n') == 1);
+            } while (answer.LastIndexOf('\n') == -1);
 
             return answer;
         }

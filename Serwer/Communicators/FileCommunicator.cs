@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Serwer.Communicators
 {
-    public class FileCommunicator(string file) : ICommunicator
+    public class FileCommunicator(string path) : ICommunicator
     {
         private CommandD _onCommand;
         private CommunicatorD _onDisconnect;
@@ -14,23 +14,37 @@ namespace Serwer.Communicators
 
         public void Start(CommandD onCommand, CommunicatorD onDisconnect)
         {
-            Console.WriteLine($"Starting FileCommunicator for {file}");
+            Console.WriteLine($"Starting FileCommunicator for {path}");
             _onCommand = onCommand;
             _onDisconnect = onDisconnect;
-            _thread = new Thread(Communicate);
+            _thread = new Thread(Watch);
             _thread.Start();
         }
 
         public void Stop()
         {
-            Console.WriteLine($"Stopping FileCommunicator for {file}\n");
+            Console.WriteLine($"Stopping FileCommunicator for {path}\n");
             _onDisconnect(this);
         }
 
-        private void Communicate(object? obj)
+        private void Watch()
         {
-            string fileContent = File.ReadAllText(file);
-            string newFile = file.Replace(".in", ".out");
+            FileSystemWatcher watcher = new(path);
+            watcher.NotifyFilter = NotifyFilters.LastWrite;
+            watcher.Changed += OnChanged;
+            watcher.Created += OnChanged;
+            watcher.Renamed += OnChanged;
+            watcher.Error += OnError;
+            watcher.Filter = "*.in";
+            watcher.IncludeSubdirectories = true;
+            watcher.EnableRaisingEvents = true;
+            new AutoResetEvent(false).WaitOne();
+        }
+
+        private void Communicate(string filepath)
+        {
+            string fileContent = File.ReadAllText(filepath);
+            string newFile = filepath.Replace(".in", ".out");
             string[] lines = fileContent.Trim().Split('\n');
             string answer = "";
             foreach (string line in lines)
@@ -38,7 +52,16 @@ namespace Serwer.Communicators
                 answer += _onCommand(line);
             }
             File.WriteAllText(newFile, answer);
-            Stop();
+        }
+
+        private void OnError(object sender, ErrorEventArgs e)
+        {
+            Console.WriteLine(e.GetException().Message);
+        }
+
+        private void OnChanged(object sender, FileSystemEventArgs e)
+        {
+            Communicate(e.FullPath);
         }
     }
 }

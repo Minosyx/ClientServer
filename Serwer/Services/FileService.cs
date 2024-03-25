@@ -10,14 +10,21 @@ namespace Serwer.Services
 {
     public class FileService : IServiceModule
     {
-        private static readonly string RootDir = @"C:\Users\Patryk\Desktop\Files";
+        private readonly string RootDir;
 
-        private readonly Dictionary<string, Func<string, string>> _actions = new()
+        private readonly Dictionary<string, Func<string, string>> _actions;
+
+        public FileService(string rootDir)
         {
-            { "put", PutFile },
-            { "get", GetFile },
-            { "dir", GetDir }
-        };
+            RootDir = rootDir;
+
+            _actions = new()
+            {
+                ["put"] = PutFile,
+                ["get"] = GetFile,
+                ["dir"] = GetDir
+            };
+        }
 
         public string AnswerCommand(string command)
         {
@@ -34,14 +41,15 @@ namespace Serwer.Services
                 throw new ArgumentException("Invalid command");
             }
             var actionPartIndex = command.IndexOf(' ', commandPartIndex + 1);
-            if (actionPartIndex == -1)
+            return actionPartIndex switch
             {
-                throw new ArgumentException("Invalid command");
-            }
-            return (command[(commandPartIndex + 1)..actionPartIndex], command[(actionPartIndex + 1)..]);
+                -1 when command[(commandPartIndex + 1)..] != "dir" => throw new ArgumentException("Invalid command"),
+                -1 => (command[(commandPartIndex + 1)..], ""),
+                _ => (command[(commandPartIndex + 1)..actionPartIndex], command[(actionPartIndex + 1)..])
+            };
         }
 
-        private static string PutFile(string data)
+        private string PutFile(string data)
         {
             var i = data.IndexOf(' ');
             var fileName = data[..i];
@@ -52,7 +60,7 @@ namespace Serwer.Services
             return "File saved\n";
         }
 
-        private static string GetFile(string data)
+        private string GetFile(string data)
         {
             var path = $@"{RootDir}\{data}";
             if (!File.Exists(path))
@@ -63,7 +71,7 @@ namespace Serwer.Services
             return $"{b64}\n";
         }
 
-        private static string GetDir(string data)
+        private string GetDir(string data)
         {
             var files = Directory.GetFiles($@"{RootDir}\{data}");
             return string.Join('\n', files.Select(f => f[(RootDir.Length + 1)..])) + '\n';
