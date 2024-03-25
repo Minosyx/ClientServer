@@ -3,21 +3,15 @@ using System.Text;
 
 namespace Serwer.Communicators
 {
-    public class TCPCommunicator : ICommunicator
+    public class TCPCommunicator(TcpClient client) : ICommunicator
     {
-        private TcpClient _client;
         private CommunicatorD _onDisconnect;
         private CommandD _onCommand;
         private Thread _thread;
 
-        public TCPCommunicator(TcpClient client)
-        {
-            _client = client;
-        }
-
         public void Start(CommandD onCommand, CommunicatorD onDisconnect)
         {
-            Console.WriteLine($"Client Connected {_client.Client.RemoteEndPoint}");
+            Console.WriteLine($"Client Connected {client.Client.RemoteEndPoint}");
             _onCommand = onCommand;
             _onDisconnect = onDisconnect;
             _thread = new Thread(Communicate);
@@ -27,9 +21,9 @@ namespace Serwer.Communicators
         public void Stop()
         {
             Console.WriteLine($"Client Closed");
-            if (_client.Connected)
+            if (client.Connected)
             {
-                _client.Close();
+                client.Close();
                 _onDisconnect(this);
             }
         }
@@ -39,7 +33,7 @@ namespace Serwer.Communicators
             string? data = null;
             int len, nl;
             byte[] bytes = new byte[4096];
-            NetworkStream stream = _client.GetStream();
+            NetworkStream stream = client.GetStream();
             try
             {
                 while ((len = stream.Read(bytes, 0, bytes.Length)) > 0)

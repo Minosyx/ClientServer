@@ -17,14 +17,14 @@ namespace Serwer.Services
 
         public string AnswerCommand(string command)
         {
-
+            return "";
         }
 
         private string GetActionType(string command)
         {
             var commandParts = command.IndexOf(' ');
-            return commandParts[0];
-        }   
+            return "";
+        }
 
         private static string PutFile(string command)
         {
