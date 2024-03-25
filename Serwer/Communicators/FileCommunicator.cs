@@ -40,7 +40,5 @@ namespace Serwer.Communicators
             File.WriteAllText(newFile, answer);
             Stop();
         }
-
-
     }
 }

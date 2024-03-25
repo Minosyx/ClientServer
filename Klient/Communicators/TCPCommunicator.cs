@@ -8,14 +8,9 @@ using System.Threading.Tasks;
 
 namespace Klient.Communicators
 {
-    public class TCPCommunicator : ClientCommunicator
+    public class TCPCommunicator(string hostname, int port) : ClientCommunicator
     {
-        TcpClient _client;
-
-        public TCPCommunicator(string hostname, int port)
-        {
-            _client = new TcpClient(hostname, port);
-        }
+        private readonly TcpClient _client = new(hostname, port);
 
         public override string QA(string question)
         {
