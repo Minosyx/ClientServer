@@ -1,57 +1,63 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Serwer.Communicators
 {
-    public class TCPCommunicator(TcpClient client) : ICommunicator
+    public class UDPCommunicator(UdpClient client) : ICommunicator
     {
+        private readonly UdpClient _client = client;
+        private IPEndPoint _endPoint;
         private CommunicatorD _onDisconnect;
         private CommandD _onCommand;
         private Thread _thread;
 
         public void Start(CommandD onCommand, CommunicatorD onDisconnect)
         {
-            Console.WriteLine($"Client Connected {client.Client.RemoteEndPoint}");
+            //Console.WriteLine("UDP Communicator started");
+
             _onCommand = onCommand;
             _onDisconnect = onDisconnect;
             _thread = new Thread(Communicate);
             _thread.Start();
+            _endPoint = new IPEndPoint(IPAddress.Any, 0);
         }
+
 
         public void Stop()
         {
-            Console.WriteLine($"Client Closed");
-            if (client.Connected)
-            {
-                client.Close();
-                _onDisconnect(this);
-            }
+            //Console.WriteLine("UDP Communicator stopped");
+            _client.Close();
+            _onDisconnect(this);
         }
 
         private void Communicate()
         {
             string? data = null;
-            int len, nl;
-            byte[] bytes = new byte[4096];
-            NetworkStream stream = client.GetStream();
+            int nl;
             try
             {
-                while ((len = stream.Read(bytes, 0, bytes.Length)) > 0)
+                while (true)
                 {
-                    data += Encoding.ASCII.GetString(bytes, 0, len);
+                    byte[] bytes = _client.Receive(ref _endPoint);
+                    data += Encoding.ASCII.GetString(bytes);
                     while ((nl = data.IndexOf('\n')) != -1)
                     {
                         string line = data.Substring(0, nl + 1);
                         data = data.Substring(nl + 1);
                         string answer = _onCommand(line);
                         byte[] msg = Encoding.ASCII.GetBytes(answer);
-                        stream.Write(msg, 0, msg.Length);
+                        _client.Send(msg, msg.Length, _endPoint);
                     }
                 }
             }
             catch (Exception e)
             {
-                //Console.WriteLine(e);
+                Console.WriteLine(e);
             }
 
             Stop();
