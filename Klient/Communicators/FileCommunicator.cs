@@ -18,7 +18,7 @@ namespace Klient.Communicators
             watcher.Filter = $"{filename}.out";
             watcher.EnableRaisingEvents = true;
             watcher.NotifyFilter = NotifyFilters.LastWrite;
-            watcher.WaitForChanged(WatcherChangeTypes.Changed);
+            watcher.WaitForChanged(WatcherChangeTypes.All);
 
             return File.ReadAllText($@"{path}\{filename}.out");
         }

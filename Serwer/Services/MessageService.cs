@@ -20,6 +20,7 @@ namespace Serwer.Services
             {
                 ["msg"] = SendMessage,
                 ["get"] = GetMessage,
+                ["who"] = GetWho,
             };
         }
 
@@ -41,6 +42,7 @@ namespace Serwer.Services
             return actionPartIndex switch
             {
                 -1 when command[(commandPartIndex + 1)..] != "who" => throw new ArgumentException("Invalid command"),
+                -1 when command[(commandPartIndex + 1)..] == "who" => ("who", ""),
                 _ => (command[(commandPartIndex + 1)..actionPartIndex], command[(actionPartIndex + 1)..])
             };
         }
@@ -94,6 +96,25 @@ namespace Serwer.Services
                 }
                 return sb.ToString();
             }
+        }
+
+        private string GetWho(string data)
+        {
+            HashSet<string> users = new();
+            foreach (var (recipient, _) in _messages)
+            {
+                users.Add(recipient);
+            }
+
+            foreach (var (_, messages) in _messages)
+            {
+                foreach (var sender in messages.Keys)
+                {
+                    users.Add(sender);
+                }
+            }
+
+            return string.Join('\n', users) + '\n';
         }
     }
 }

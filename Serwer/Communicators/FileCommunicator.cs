@@ -17,8 +17,9 @@ namespace Serwer.Communicators
             Console.WriteLine($"Starting FileCommunicator for {path}");
             _onCommand = onCommand;
             _onDisconnect = onDisconnect;
-            _thread = new Thread(Watch);
-            _thread.Start();
+            //_thread = new Thread(Watch);
+            //_thread.Start();
+            Watch();
         }
 
         public void Stop()
@@ -38,7 +39,6 @@ namespace Serwer.Communicators
             watcher.Filter = "*.in";
             watcher.IncludeSubdirectories = true;
             watcher.EnableRaisingEvents = true;
-            new AutoResetEvent(false).WaitOne();
         }
 
         private void Communicate(string filepath)
@@ -62,6 +62,7 @@ namespace Serwer.Communicators
         private void OnChanged(object sender, FileSystemEventArgs e)
         {
             Communicate(e.FullPath);
+            Thread.Sleep(1000);
         }
     }
 }

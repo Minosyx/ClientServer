@@ -28,7 +28,7 @@ namespace Klient.Clients
             return answer.Trim();
         }
 
-        public string[] GetSenders()
+        public string[] GetUsers()
         {
             string answer = communicator.QA("chat who\n");
             return answer.Split('\n', StringSplitOptions.RemoveEmptyEntries);
