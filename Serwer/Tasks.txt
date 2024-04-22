@@ -5,3 +5,6 @@ zrobienia:
 		- config
 	- Komunikatory:
 		- przez pliki - z u¿yciem klasy FileSystemWatcher (mo¿na podpi¹æ Create pod DateModified w razie nie zamkniêcia jeszcze pliku), tu w zasadzie brak nas³uchiwaczy, ewnetualnie zrobi komunikatory dla ka¿dej ze œcie¿ek
+
+http://is.umk.pl/~kg/zajecia/PSK/Tsunami.c
+http://is.umk.pl/~kg/zajecia/PSK/howTsunamiWorks.txt

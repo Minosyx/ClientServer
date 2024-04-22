@@ -17,9 +17,9 @@ namespace Serwer.Communicators
             Console.WriteLine($"Starting FileCommunicator for {path}");
             _onCommand = onCommand;
             _onDisconnect = onDisconnect;
-            //_thread = new Thread(Watch);
-            //_thread.Start();
-            Watch();
+            _thread = new Thread(Watch);
+            _thread.Start();
+            //Watch();
         }
 
         public void Stop()
@@ -33,12 +33,12 @@ namespace Serwer.Communicators
             FileSystemWatcher watcher = new(path);
             watcher.NotifyFilter = NotifyFilters.LastWrite;
             watcher.Changed += OnChanged;
-            watcher.Created += OnChanged;
-            watcher.Renamed += OnChanged;
             watcher.Error += OnError;
             watcher.Filter = "*.in";
             watcher.IncludeSubdirectories = true;
             watcher.EnableRaisingEvents = true;
+
+            Thread.Sleep(Timeout.Infinite);
         }
 
         private void Communicate(string filepath)
@@ -54,6 +54,19 @@ namespace Serwer.Communicators
             File.WriteAllText(newFile, answer);
         }
 
+        private bool isFileReady(string filename)
+        {
+            try
+            {
+                using FileStream fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.None);
+                return true;
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+        }
+
         private void OnError(object sender, ErrorEventArgs e)
         {
             Console.WriteLine(e.GetException().Message);
@@ -61,8 +74,9 @@ namespace Serwer.Communicators
 
         private void OnChanged(object sender, FileSystemEventArgs e)
         {
-            Communicate(e.FullPath);
-            Thread.Sleep(1000);
+            //if (isFileReady(e.FullPath))
+                Communicate(e.FullPath);
+            //Thread.Sleep(1000);
         }
     }
 }

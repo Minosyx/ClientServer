@@ -16,7 +16,7 @@ namespace Klient.Clients
             sb.Append(' ');
             sb.Append(sender);
             sb.Append(' ');
-            sb.Append(message);
+            sb.Append(Convert.ToBase64String(Encoding.UTF8.GetBytes(message)));
             sb.Append('\n');
             string answer = communicator.QA(sb.ToString());
             return !answer.Contains("error", StringComparison.CurrentCultureIgnoreCase);
@@ -25,7 +25,7 @@ namespace Klient.Clients
         public string Receive(string recipient)
         {
             string answer = communicator.QA($"chat get {recipient}\n");
-            return answer.Trim();
+            return Encoding.UTF8.GetString(Convert.FromBase64String(answer.Trim()));
         }
 
         public string[] GetUsers()

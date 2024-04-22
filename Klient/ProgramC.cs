@@ -5,16 +5,21 @@ using Klient.Communicators;
 //TCPCommunicator communicator = new TCPCommunicator("localhost", 12345);
 
 Thread.Sleep(5000);
-FileCommunicator communicator = new FileCommunicator(@"D:\Studia\IS2S3\PROSIKO\Commands2");
+FileCommunicator communicator = new FileCommunicator(@"D:\Studia\IS2S3\PROSIKO\Commands");
+FileCommunicator communicator2 = new FileCommunicator(@"D:\Studia\IS2S3\PROSIKO\Commands2");
 
 //RS232Communicator communicator = new RS232Communicator("COM1");
 
 //UDPCommunicator communicator = new UDPCommunicator("127.0.0.1", 12345);
 
 
-//PingClient pc = new PingClient(communicator);
-//double result = pc.Test(10, 1024, 4089);
-//Console.WriteLine($"Average time: {result}ms");
+PingClient pc = new PingClient(communicator);
+double result = pc.Test(10, 1024, 4089);
+Console.WriteLine($"Average time: {result}ms");
+
+PingClient pc2 = new PingClient(communicator2);
+double result2 = pc2.Test(10, 1024, 4089);
+Console.WriteLine($"Average time: {result2}ms");
 
 //FileClient fc = new FileClient(communicator);
 ////var answer = fc.Put(@"D:\Studia\IS2S3\PROSIKO\FTP\raz.txt");
@@ -24,16 +29,16 @@ FileCommunicator communicator = new FileCommunicator(@"D:\Studia\IS2S3\PROSIKO\C
 
 
 
-MessageClient mc = new MessageClient(communicator);
-bool ret = mc.Send(["Patryk", "Alice"], "John", "Witam witam wszystkich. Siemanko");
+//MessageClient mc = new MessageClient(communicator);
+//bool ret = mc.Send(["Patryk", "Alice"], "John", "Witam witam wszystkich. Siemanko");
 
-string answer = mc.Receive("Patryk");
+//string answer = mc.Receive("Patryk");
 
-Console.WriteLine(answer);
+//Console.WriteLine(answer);
 
-string[] users = mc.GetUsers();
+//string[] users = mc.GetUsers();
 
-foreach (var user in users)
-{
-    Console.WriteLine(user);
-}
+//foreach (var user in users)
+//{
+//    Console.WriteLine(user);
+//}

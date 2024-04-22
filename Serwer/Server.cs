@@ -9,7 +9,7 @@ namespace Serwer
     public class Server
     {
         private Dictionary<string, IServiceModule> services = new();
-        private List<IListener> listeners = new();
+        private List<IListener> listeners = new(); // dictionary is needed
         private List<ICommunicator> communicators = new();
 
         public void AddServiceModule(string name, IServiceModule module)
