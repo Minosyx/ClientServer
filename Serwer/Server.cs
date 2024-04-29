@@ -9,7 +9,7 @@ namespace Serwer
     public class Server
     {
         private Dictionary<string, IServiceModule> services = new();
-        private List<IListener> listeners = new(); // dictionary is needed
+        private Dictionary<string, IListener> listeners = new();
         private List<ICommunicator> communicators = new();
 
         public void AddServiceModule(string name, IServiceModule module)
@@ -23,9 +23,9 @@ namespace Serwer
             communicator.Start(ServiceCenter, RemoveCommunicator);
         }
 
-        public void AddListener(IListener listener)
+        public void AddListener(string name, IListener listener)
         {
-            listeners.Add(listener);
+            listeners.Add(name, listener);
         }
 
         public void RemoveServiceModule(string name)
@@ -38,16 +38,21 @@ namespace Serwer
             communicators.Remove(communicator);
         }
 
+        public void RemoveListener(string name)
+        {
+            listeners.Remove(name);
+        }
+
         public void RemoveListener(IListener listener)
         {
-            listeners.Remove(listener);
+            listeners.Remove(listeners.FirstOrDefault(x => x.Value == listener).Key);
         }
 
         public void Start()
         {
-            foreach (IListener listener in listeners)
+            foreach (var listener in listeners)
             {
-                listener.Start(AddCommunicator);
+                listener.Value.Start(AddCommunicator);
             }
         }
 

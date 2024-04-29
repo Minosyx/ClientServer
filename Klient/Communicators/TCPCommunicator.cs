@@ -40,6 +40,7 @@ namespace Klient.Communicators
         {
             byte[] data = new byte[4096];
             NetworkStream stream = _client.GetStream();
+            stream.ReadTimeout = 10000;
             int len = stream.Read(data, 0, data.Length);
             return Encoding.ASCII.GetString(data, 0, len);
         }

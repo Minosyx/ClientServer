@@ -59,7 +59,18 @@ namespace Serwer.Services
             var serviceType = parameters[1];
             var rest = parameters[2..];
 
-            var serviceInstance = Activator.CreateInstance(Type.GetType(serviceType + "Service", false, true), rest);
+            object? serviceInstance;
+            Type? serviceTypeInstance = Type.GetType($"serwer.{serviceType}service", false, true);
+            try
+            {
+                serviceInstance = rest.Length == 0
+                    ? Activator.CreateInstance(serviceTypeInstance)
+                    : Activator.CreateInstance(serviceTypeInstance, args: rest);
+            }
+            catch (Exception e)
+            {
+                throw e.InnerException;
+            }
 
             _server.AddServiceModule(serviceName, (IServiceModule) serviceInstance);
             return $"Service {serviceName} added successfully\n";
@@ -79,12 +90,13 @@ namespace Serwer.Services
         private string StartMedium(string data)
         {
             var parameters = data.Split(' ');
-            var mediumType = parameters[0];
-            var rest = parameters[1..];
+            var mediumName = parameters[0];
+            var mediumType = parameters[1];
+            var rest = parameters[2..];
 
-            var mediumInstance = Activator.CreateInstance(Type.GetType(mediumType + "Listener", false, true), rest);
+            var mediumInstance = Activator.CreateInstance(Type.GetType(mediumType + "Listener", false, true), args: rest);
 
-            _server.AddListener((IListener) mediumInstance);
+            _server.AddListener(mediumName, (IListener) mediumInstance);
             return $"Medium {mediumType} started successfully\n";
         }
 
@@ -95,7 +107,8 @@ namespace Serwer.Services
                 return "Invalid command\n";
             }
 
-            _server.RemoveListener((IListener) Activator.CreateInstance(Type.GetType(data + "Listener", false, true)));
+            _server.RemoveListener(data);
+
             return $"Medium {data} stopped\n";
         }
     }
