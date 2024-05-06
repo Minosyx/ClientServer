@@ -12,36 +12,51 @@ TCPCommunicator communicator = new TCPCommunicator("localhost", 12345);
 //UDPCommunicator communicator = new UDPCommunicator("127.0.0.1", 12345);
 
 ConfigurationClient cc = new ConfigurationClient(communicator);
-string answer = cc.StartService("ping", "ping");
+string answer = cc.StartMedium("udp", "udp", "12345");
 Console.WriteLine(answer);
-
-communicator = new TCPCommunicator("localhost", 12345);
-
-PingClient pc = new PingClient(communicator);
-double result = pc.Test(10, 1024, 4089);
-Console.WriteLine($"Average time: {result}ms");
 
 communicator = new TCPCommunicator("localhost", 12345);
 
 cc = new ConfigurationClient(communicator);
-answer = cc.StopService("ping");
+answer = cc.StartService("ftp", "file", @"D:\Studia\IS2S3\PROSIKO\FTPServer");
 Console.WriteLine(answer);
 
-communicator = new TCPCommunicator("localhost", 12345);
+UDPCommunicator u_communicator = new UDPCommunicator("127.0.0.1", 12345);
 
-PingClient pc2 = new PingClient(communicator);
-double result2 = pc2.Test(10, 1024, 4089);
-Console.WriteLine($"Average time: {result2}ms");
+
+
+//PingClient pc = new PingClient(communicator);
+//double result = pc.Test(10, 1024, 4089);
+//Console.WriteLine($"Average time: {result}ms");
+
+//communicator = new TCPCommunicator("localhost", 12345);
+
+//cc = new ConfigurationClient(communicator);
+//answer = cc.StopService("ping");
+//Console.WriteLine(answer);
+
+//communicator = new TCPCommunicator("localhost", 12345);
+
+//PingClient pc2 = new PingClient(communicator);
+//double result2 = pc2.Test(10, 1024, 4089);
+//Console.WriteLine($"Average time: {result2}ms");
 
 //PingClient pc2 = new PingClient(communicator2);
 //double result2 = pc2.Test(10, 1024, 4089);
 //Console.WriteLine($"Average time: {result2}ms");
 
-//FileClient fc = new FileClient(communicator);
-////var answer = fc.Put(@"D:\Studia\IS2S3\PROSIKO\FTP\raz.txt");
-////string answer = fc.Dir();
-//var answer = fc.Get("raz.txt", @"D:\Studia\IS2S3\PROSIKO\FTP");
-//Console.WriteLine(answer);
+FileClient fc = new FileClient(u_communicator);
+//answer = fc.Put(@"D:\Studia\IS2S3\PROSIKO\FTP\raz.txt");
+answer = fc.Dir();
+Console.WriteLine(answer);
+
+u_communicator = new UDPCommunicator("127.0.0.1", 12345);
+
+
+FileClient fc2 = new FileClient(u_communicator);
+var boolAnswer = fc2.Get("raz.txt", @"D:\Studia\IS2S3\PROSIKO\FTP");
+Console.WriteLine(boolAnswer);
+
 
 
 

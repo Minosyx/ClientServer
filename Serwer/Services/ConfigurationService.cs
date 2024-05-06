@@ -60,7 +60,7 @@ namespace Serwer.Services
             var rest = parameters[2..];
 
             object? serviceInstance;
-            Type? serviceTypeInstance = Type.GetType($"serwer.{serviceType}service", false, true);
+            Type? serviceTypeInstance = Type.GetType($"serwer.services.{serviceType}service", false, true);
             try
             {
                 serviceInstance = rest.Length == 0
@@ -94,9 +94,11 @@ namespace Serwer.Services
             var mediumType = parameters[1];
             var rest = parameters[2..];
 
-            var mediumInstance = Activator.CreateInstance(Type.GetType(mediumType + "Listener", false, true), args: rest);
-
+            object? mediumInstance;
+            Type? mediumTypeInstance = Type.GetType($"serwer.listeners.{mediumType}Listener", false, true);
+            mediumInstance = Activator.CreateInstance(mediumTypeInstance, args: rest);
             _server.AddListener(mediumName, (IListener) mediumInstance);
+            ((IListener) mediumInstance).Start(_server.AddCommunicator);
             return $"Medium {mediumType} started successfully\n";
         }
 

@@ -20,6 +20,19 @@ namespace Serwer.Listeners
             _thread = new Thread(Listen);
         }
 
+        public TCPListener(string portNo)
+        {
+            try
+            {
+                _portNo = int.Parse(portNo);
+                _thread = new Thread(Listen);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
         public void Start(CommunicatorD? onConnect)
         {
             _onConnect = onConnect;

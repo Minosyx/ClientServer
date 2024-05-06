@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Wspólne;
 
-namespace Serwer
+namespace Serwer.Services
 {
     public class PingService : IServiceModule
     {

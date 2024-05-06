@@ -24,11 +24,6 @@ namespace Klient.Communicators
 
             bool fileChanged = waitForFile.WaitOne(10000);
 
-            //while (!isFileReady($@"{path}\{filename}.out"))
-            //{
-            //    Thread.Sleep(100);
-            //}
-
             return File.ReadAllText($@"{path}\{filename}.out");
         }
 
@@ -37,19 +32,6 @@ namespace Klient.Communicators
             if (e.ChangeType == WatcherChangeTypes.Changed)
             {
                 waitForFile.Set();
-            }
-        }
-
-        private bool isFileReady(string filename)
-        {
-            try
-            {
-                using FileStream fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.None);
-                return true;
-            }
-            catch (IOException)
-            {
-                return false;
             }
         }
 

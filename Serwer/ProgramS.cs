@@ -18,6 +18,14 @@ server.AddListener("tcp", new TCPListener(12345));
 //server.AddListener(new RS232Listener("COM2"));
 //server.AddListener(new UDPListener(12345));
 
+//var pingService = new PingService();
+//Type type = pingService.GetType();
+//Console.WriteLine(type.AssemblyQualifiedName);
+
+//var fileService = new FileService(@"D:\Studia\IS2S3\PROSIKO\FTPServer");
+//type = fileService.GetType();
+//Console.WriteLine(type.AssemblyQualifiedName);
+
 server.Start();
 
 //Process.GetCurrentProcess().WaitForExit();

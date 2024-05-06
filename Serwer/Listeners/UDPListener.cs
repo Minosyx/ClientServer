@@ -24,6 +24,20 @@ namespace Serwer.Listeners
             _server = new UdpClient(_portNo);
         }
 
+        public UDPListener(string portNo)
+        {
+            try
+            {
+                _portNo = int.Parse(portNo);
+                _thread = new Thread(Listen);
+                _server = new UdpClient(_portNo);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
         public void Start(CommunicatorD? onConnect)
         {
             _onConnect = onConnect;
