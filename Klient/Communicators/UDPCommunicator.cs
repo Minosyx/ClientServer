@@ -55,7 +55,8 @@ namespace Klient.Communicators
             while (fullMessage.LastIndexOf('\n') == -1)
             {
                 data = _client.Receive(ref _endPoint);
-                string partialMessage = _splitter.ReassemblePacket(data, _endPoint.ToString());
+                string? partialMessage = _splitter.ReassemblePacket(data, _endPoint.ToString());
+                if (partialMessage == null) continue;
                 fullMessage += partialMessage;
             }
             return fullMessage;
