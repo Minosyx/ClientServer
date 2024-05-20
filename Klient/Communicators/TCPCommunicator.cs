@@ -26,7 +26,7 @@ namespace Klient.Communicators
 
         public override void Close()
         {
-            _client.Close();
+            //_client.Close();
         }
 
         public void WriteLine(string line)

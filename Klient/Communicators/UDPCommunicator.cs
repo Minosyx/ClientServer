@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Wspólne;
 
 namespace Klient.Communicators
 {
@@ -12,6 +13,7 @@ namespace Klient.Communicators
     {
         private readonly UdpClient _client = new();
         private IPEndPoint _endPoint;
+        private UDPSplitter _splitter = new();
 
         public UDPCommunicator(string ip, int port)
         {
@@ -33,19 +35,30 @@ namespace Klient.Communicators
 
         public override void Close()
         {
-            _client.Close();
+            //_client.Close();
         }
 
         public void WriteLine(string line)
         {
-            byte[] data = Encoding.ASCII.GetBytes(line);
-            _client.Send(data, data.Length);
+            foreach (byte[] packet in _splitter.SplitPacket(line))
+            {
+                _client.Send(packet, packet.Length);
+                Thread.Sleep(1);
+            }
         }
 
         public string ReadLine()
         {
-            byte[] data = _client.Receive(ref _endPoint);
-            return Encoding.ASCII.GetString(data);
+            string fullMessage = string.Empty;
+            byte[] data;
+
+            while (fullMessage.LastIndexOf('\n') == -1)
+            {
+                data = _client.Receive(ref _endPoint);
+                string partialMessage = _splitter.ReassemblePacket(data, _endPoint.ToString());
+                fullMessage += partialMessage;
+            }
+            return fullMessage;
         }
     }
 }

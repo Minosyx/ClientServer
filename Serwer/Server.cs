@@ -66,7 +66,7 @@ namespace Serwer
             }
             catch (Exception e)
             {
-                return $"Service failure with exception: {e.Message}";
+                return $"Service failure with exception: {e.Message}\n";
             }
         }
 
