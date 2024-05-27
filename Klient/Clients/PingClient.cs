@@ -23,7 +23,7 @@ namespace Klient.Clients
             for (int i = 0; i < amount; i++)
             {
                 answer = communicator.QA(question);
-                Console.WriteLine(answer[..20]);
+                //Console.WriteLine(answer[..20]);
             }
             TimeSpan diff = DateTime.Now - now;
             communicator.Close();
