@@ -10,9 +10,8 @@ namespace Serwer.Services
     public class ConfigurationService : IServiceModule
     {
         private readonly Dictionary<string, Func<string, string>> _actions;
-        private readonly Server _server;
 
-        public ConfigurationService(Server server)
+        public ConfigurationService()
         {
             _actions = new()
             {
@@ -21,8 +20,6 @@ namespace Serwer.Services
                 ["start-medium"] = StartMedium,
                 ["stop-medium"] = StopMedium,
             };
-
-            _server = server;
         }
 
         private (string action, string data) ExtractParams(string command)
@@ -72,7 +69,7 @@ namespace Serwer.Services
                 throw e.InnerException;
             }
 
-            _server.AddServiceModule(serviceName, (IServiceModule) serviceInstance);
+            Server.Instance.AddServiceModule(serviceName, (IServiceModule) serviceInstance);
             return $"Service {serviceName} added successfully\n";
         }
 
@@ -83,7 +80,7 @@ namespace Serwer.Services
                 return "Invalid command\n";
             }
 
-            _server.RemoveServiceModule(data);
+            Server.Instance.RemoveServiceModule(data);
             return $"Service {data} stopped\n";
         }
 
@@ -97,8 +94,8 @@ namespace Serwer.Services
             object? mediumInstance;
             Type? mediumTypeInstance = Type.GetType($"serwer.listeners.{mediumType}Listener", false, true);
             mediumInstance = Activator.CreateInstance(mediumTypeInstance, args: rest);
-            _server.AddListener(mediumName, (IListener) mediumInstance);
-            ((IListener) mediumInstance).Start(_server.AddCommunicator);
+            Server.Instance.AddListener(mediumName, (IListener) mediumInstance);
+            ((IListener) mediumInstance).Start(Server.Instance.AddCommunicator);
             return $"Medium {mediumType} started successfully\n";
         }
 
@@ -109,7 +106,7 @@ namespace Serwer.Services
                 return "Invalid command\n";
             }
 
-            _server.RemoveListener(data);
+            Server.Instance.RemoveListener(data);
 
             return $"Medium {data} stopped\n";
         }

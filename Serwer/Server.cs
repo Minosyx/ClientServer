@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,9 +9,24 @@ namespace Serwer
 {
     public class Server
     {
+        private static Server? _instance;
+
         private Dictionary<string, IServiceModule> services = new();
         private Dictionary<string, IListener> listeners = new();
         private List<ICommunicator> communicators = new();
+
+        private Server()
+        {
+        }
+
+        public static Server Instance
+        {
+            get
+            {
+                _instance ??= new Server();
+                return _instance;
+            }
+        }
 
         public void AddServiceModule(string name, IServiceModule module)
         {
@@ -66,7 +82,7 @@ namespace Serwer
             }
             catch (Exception e)
             {
-                return $"Service failure with exception: {e.Message}";
+                return $"Service failure with exception: {e.Message}\n";
             }
         }
 

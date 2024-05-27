@@ -5,33 +5,31 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Wspólne;
 
 namespace Serwer.Communicators
 {
     public class UDPCommunicator(UdpClient client) : ICommunicator
     {
-        private readonly UdpClient _client = client;
         private IPEndPoint _endPoint;
         private CommunicatorD _onDisconnect;
         private CommandD _onCommand;
         private Thread _thread;
+        private UDPSplitter _splitter = new();
 
         public void Start(CommandD onCommand, CommunicatorD onDisconnect)
         {
-            //Console.WriteLine("UDP Communicator started");
-
             _onCommand = onCommand;
             _onDisconnect = onDisconnect;
             _thread = new Thread(Communicate);
-            _thread.Start();
             _endPoint = new IPEndPoint(IPAddress.Any, 0);
+            _thread.Start();
         }
 
 
         public void Stop()
         {
-            //Console.WriteLine("UDP Communicator stopped");
-            _client.Close();
+            client.Close();
             _onDisconnect(this);
         }
 
@@ -43,15 +41,20 @@ namespace Serwer.Communicators
             {
                 while (true)
                 {
-                    byte[] bytes = _client.Receive(ref _endPoint);
-                    data += Encoding.ASCII.GetString(bytes);
+                    byte[] bytes = client.Receive(ref _endPoint);
+                    string id = _endPoint.ToString();
+                    string? packet = _splitter.ReassemblePacket(bytes, id);
+
+                    if (packet == null) continue;
+                    data += packet;
+
                     while ((nl = data.IndexOf('\n')) != -1)
                     {
                         string line = data.Substring(0, nl + 1);
                         data = data.Substring(nl + 1);
                         string answer = _onCommand(line);
-                        byte[] msg = Encoding.ASCII.GetBytes(answer);
-                        _client.Send(msg, msg.Length, _endPoint);
+
+                        SendMessage(answer);
                     }
                 }
             }
@@ -61,6 +64,15 @@ namespace Serwer.Communicators
             }
 
             Stop();
+        }
+
+        private void SendMessage(string message)
+        {
+            foreach (byte[] packet in _splitter.SplitPacket(message))
+            {
+                client.Send(packet, packet.Length, _endPoint);
+                Thread.Sleep(1);
+            }
         }
     }
 }

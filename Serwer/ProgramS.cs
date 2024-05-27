@@ -4,7 +4,7 @@ using Serwer.Listeners;
 using Serwer.Services;
 
 
-Server server = new Server();
+Server server = Server.Instance;
 
 
 server.AddServiceModule("ping", new PingService());
