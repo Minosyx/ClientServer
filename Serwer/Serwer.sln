@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serwer", "Serwer.csproj", "{27D4597C-FEB8-494A-97F0-70D7263850F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerwerConsole", "SerwerConsole.csproj", "{27D4597C-FEB8-494A-97F0-70D7263850F1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Klient", "..\Klient\Klient.csproj", "{2B63F21A-DDAC-4BCA-836D-DF807FF33C6B}"
 EndProject
@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementy rozwiązania", "El
 	ProjectSection(SolutionItems) = preProject
 		Tasks.txt = Tasks.txt
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gRPCSerwer", "..\gRPCSerwer\gRPCSerwer.csproj", "{B4C5E530-B1A5-4041-86AC-D90C9888C43B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +34,10 @@ Global
 		{BD9FB63A-2314-4E33-BCB8-18D76FC90CDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD9FB63A-2314-4E33-BCB8-18D76FC90CDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD9FB63A-2314-4E33-BCB8-18D76FC90CDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4C5E530-B1A5-4041-86AC-D90C9888C43B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4C5E530-B1A5-4041-86AC-D90C9888C43B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4C5E530-B1A5-4041-86AC-D90C9888C43B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4C5E530-B1A5-4041-86AC-D90C9888C43B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

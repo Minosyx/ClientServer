@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "Klient";
+
+package message;
+
+service Messenger {
+  rpc SendMessage (MessageRequest) returns (MessageResponse);
+}
+
+message MessageRequest {
+  string message = 1;
+}
+
+message MessageResponse {
+  string message = 1;
+}
