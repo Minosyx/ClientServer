@@ -15,7 +15,7 @@
 
         public static string SubstringMax(this string str, int len)
         {
-            return str.Substring(0, Math.Min(str.Length, len));
+            return str[..Math.Min(str.Length, len)];
         }
     }
 }

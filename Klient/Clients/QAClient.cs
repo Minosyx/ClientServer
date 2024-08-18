@@ -2,13 +2,8 @@
 
 namespace Klient.Clients
 {
-    public abstract class QAClient
+    public abstract class QAClient(ClientCommunicator communicator)
     {
-        ClientCommunicator communicator;
-
-        protected QAClient(ClientCommunicator communicator)
-        {
-            this.communicator = communicator;
-        }
+        private readonly ClientCommunicator communicator = communicator;
     }
 }

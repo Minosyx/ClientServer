@@ -8,6 +8,9 @@ namespace Serwer
 {
     public delegate string CommandD(string command);
     public delegate void CommunicatorD(ICommunicator commander);
+    public delegate void MediumD(string name, IListener listener);
+    public delegate void ServiceD(string name, IServiceModule module);
+    public delegate void RemoveD(string name);
 
     public interface IServiceModule
     {

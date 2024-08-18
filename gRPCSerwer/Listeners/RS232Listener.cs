@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Serwer.Attributes;
 using Serwer.Communicators;
 
 namespace Serwer.Listeners
 {
+    [Medium("RS232")]
     public class RS232Listener(params string[] ports) : IListener
     {
         private CommunicatorD? _onConnect;
@@ -15,7 +17,7 @@ namespace Serwer.Listeners
         public void Start(CommunicatorD? onConnect)
         {
             _onConnect = onConnect;
-            _communicators = new List<RS232Communicator>();
+            _communicators = [];
             foreach (var port in ports)
             {
                 var communicator = new RS232Communicator(port);

@@ -1,7 +1,7 @@
 ﻿using Grpc.Core;
 using Serwer;
 
-namespace gRPCSerwer.Communicators
+namespace Serwer.Communicators
 {
     public class gRPCCommunicator : Messenger.MessengerBase, ICommunicator
     {
@@ -24,7 +24,7 @@ namespace gRPCSerwer.Communicators
 
         public void Stop()
         {
-            throw new NotImplementedException();
+            _onDisconnect(this);
         }
     }
 }

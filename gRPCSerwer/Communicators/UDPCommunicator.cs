@@ -15,7 +15,7 @@ namespace Serwer.Communicators
         private CommunicatorD _onDisconnect;
         private CommandD _onCommand;
         private Thread _thread;
-        private UDPSplitter _splitter = new();
+        private readonly UDPSplitter _splitter = new();
 
         public void Start(CommandD onCommand, CommunicatorD onDisconnect)
         {
@@ -36,7 +36,6 @@ namespace Serwer.Communicators
         private void Communicate()
         {
             string? data = null;
-            int nl;
             try
             {
                 while (true)
@@ -48,10 +47,11 @@ namespace Serwer.Communicators
                     if (packet == null) continue;
                     data += packet;
 
+                    int nl;
                     while ((nl = data.IndexOf('\n')) != -1)
                     {
-                        string line = data.Substring(0, nl + 1);
-                        data = data.Substring(nl + 1);
+                        string line = data[..(nl + 1)];
+                        data = data[(nl + 1)..];
                         string answer = _onCommand(line);
 
                         SendMessage(answer);
@@ -62,16 +62,19 @@ namespace Serwer.Communicators
             {
                 Console.WriteLine(e);
             }
-
             Stop();
         }
 
         private void SendMessage(string message)
         {
-            foreach (byte[] packet in _splitter.SplitPacket(message))
+            var packets = _splitter.SplitPacket(message).ToList();
+            foreach (byte[] packet in packets)
             {
                 client.Send(packet, packet.Length, _endPoint);
-                Thread.Sleep(1);
+                if (packets.Count > 1)
+                {
+                    Thread.Sleep(1);
+                }
             }
         }
     }

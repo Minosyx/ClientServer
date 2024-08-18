@@ -10,23 +10,25 @@ namespace Wspólne
     public class UDPSplitter
     {
         private const int MaxPacketSize = 65499;
-        private readonly Dictionary<string, Dictionary<int, string>> _packets = new();
-        private int? totalPackets = null;
+        private readonly Dictionary<string, Dictionary<int, string>> _packets = [];
+        private int? _totalPackets;
         public IEnumerable<byte[]> SplitPacket(string data)
         {
             byte[] bytes = Encoding.ASCII.GetBytes(data);
             int totalPackets = (int)Math.Ceiling((double)bytes.Length / MaxPacketSize);
-            List<byte[]> packets = new();
+            List<byte[]> packets = [];
+            int bytesLeft = bytes.Length;
 
             for (int i = 0; i < totalPackets; i++)
             {
-                int packetSize = Math.Min(MaxPacketSize, bytes.Length - i * MaxPacketSize);
+                int packetSize = Math.Min(MaxPacketSize, bytesLeft);
                 byte[] packet = new byte[packetSize + 8];
                 Array.Copy(BitConverter.GetBytes(i), 0, packet, 0, 4);
                 Array.Copy(BitConverter.GetBytes(totalPackets), 0, packet, 4, 4);
                 Array.Copy(bytes, i * MaxPacketSize, packet, 8, packetSize);
                 
                 packets.Add(packet);
+                bytesLeft -= MaxPacketSize;
             }
             return packets;
         }
@@ -34,25 +36,25 @@ namespace Wspólne
         public string? ReassemblePacket(byte[] packet, string id)
         {
             int sequenceNumber = BitConverter.ToInt32(packet, 0);
-            totalPackets ??= BitConverter.ToInt32(packet, 4);
+            _totalPackets ??= BitConverter.ToInt32(packet, 4);
 
-            if (!_packets.ContainsKey(id))
+            if (!_packets.TryGetValue(id, out var value))
             {
-                _packets[id] = new Dictionary<int, string>(totalPackets.Value);
+                value = new Dictionary<int, string>(_totalPackets.Value);
+                _packets[id] = value;
             }
 
             string data = Encoding.ASCII.GetString(packet, 8, packet.Length - 8);
+            value[sequenceNumber] = data;
 
-            _packets[id][sequenceNumber] = data;
-
-            if (_packets[id].Count != totalPackets) return null;
+            if (value.Count != _totalPackets) return null;
             StringBuilder sb = new();
-            for (int i = 0; i < totalPackets; i++)
+            for (int i = 0; i < _totalPackets; i++)
             {
-                sb.Append(_packets[id][i]);
+                sb.Append(value[i]);
             }
             _packets.Remove(id);
-            totalPackets = null;
+            _totalPackets = null;
             return sb.ToString();
         }
     }

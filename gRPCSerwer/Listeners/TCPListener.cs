@@ -1,18 +1,19 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using Serwer.Attributes;
 using Serwer.Communicators;
-
 
 namespace Serwer.Listeners
 {
-    internal class TCPListener : IListener
+    [Medium("TCP")]
+    public class TCPListener : IListener
     {
         private readonly Thread _thread;
-        private int _portNo;
+        private readonly int _portNo;
         private CommunicatorD? _onConnect;
         private TcpListener _server;
-        private bool _shouldTerminate = false;
+        private bool _shouldTerminate;
 
         public TCPListener(int portNo)
         {
@@ -53,7 +54,7 @@ namespace Serwer.Listeners
             while (!_shouldTerminate)
             {
                 TcpClient client = _server.AcceptTcpClient();
-                if (client == null) continue;
+                if (!client.Connected) continue;
                 TCPCommunicator communicator = new(client);
                 _onConnect?.Invoke(communicator);
             }

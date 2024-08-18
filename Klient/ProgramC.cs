@@ -1,71 +1,94 @@
-﻿using System.Runtime.CompilerServices;
-using Klient.Clients;
+﻿using Klient.Clients;
 using Klient.Communicators;
 
-//TCPCommunicator communicator = new TCPCommunicator("localhost", 12345);
+Thread.Sleep(500);
 
-Thread.Sleep(5000);
-FileCommunicator communicator = new FileCommunicator(@"D:\Studia\IS2S3\PROSIKO\Commands");
-FileCommunicator communicator2 = new FileCommunicator(@"D:\Studia\IS2S3\PROSIKO\Commands2");
+#region Communicators
 
-//RS232Communicator communicator = new RS232Communicator("COM1");
-//UDPCommunicator communicator = new UDPCommunicator("127.0.0.1", 12345);
+TCPCommunicator tcpCommunicator = new TCPCommunicator("localhost", 12345);
+UDPCommunicator udpCommunicator = new UDPCommunicator("127.0.0.1", 12346);
+FileCommunicator fileCommunicator = new FileCommunicator(@"D:\Commands");
+FileCommunicator fileCommunicator2 = new FileCommunicator(@"E:\Studia\IS2S3\Commands2");
+RS232Communicator rs232Communicator = new RS232Communicator("COM1");
+gRPCCommunicator gRpcCommunicator = new gRPCCommunicator("https://localhost:7032");
 
-//ConfigurationClient cc = new ConfigurationClient(communicator);
-//string answer = cc.StartMedium("udp", "udp", "12345");
-//Console.WriteLine(answer);
+#endregion
 
-//communicator = new TCPCommunicator("localhost", 12345);
+#region Clients
 
-//cc = new ConfigurationClient(communicator);
-//answer = cc.StartService("ftp", "file", @"D:\Studia\IS2S3\PROSIKO\FTPServer");
-//Console.WriteLine(answer);
+ConfigurationClient cc = new ConfigurationClient(tcpCommunicator);
 
-//UDPCommunicator u_communicator = new UDPCommunicator("127.0.0.1", 12345);
+PingClient pc = new PingClient(tcpCommunicator);
+FileClient fc = new FileClient(fileCommunicator);
+MessageClient mc = new MessageClient(tcpCommunicator);
+
+#endregion
+
+#region Configuration Tests
+
+string answer = cc.StartService("ping", "ping");
+Console.WriteLine(answer);
+
+answer = cc.StartService("ftp", "ftp", @"E:\Studia\IS2S3\FTPServer");
+Console.WriteLine(answer);
+
+answer = cc.StartService("chat", "chat");
+Console.WriteLine(answer);
 
 
-PingClient pc = new PingClient(communicator);
-double result = pc.Test(100, 1024, 4089);
-Console.WriteLine($"Average time: {result}ms");
+
+answer = cc.StartMedium("udp", "udp", "12346");
+Console.WriteLine(answer);
+
+answer = cc.StartMedium("file", "file", @"D:\Commands", @"E:\Studia\IS2S3\Commands2");
+Console.WriteLine(answer);
+
+answer = cc.StartMedium("rs", "rs232", "COM2");
+Console.WriteLine(answer);
+
+answer = cc.StartMedium("grpc", "grpc");
+Console.WriteLine(answer);
+
+#endregion
+
+
+#region Ping Tests
+
+//double result = pc.Test(1000, 1024, 4089);
 //Console.WriteLine($"Average time: {result}ms");
 
-//communicator = new TCPCommunicator("localhost", 12345);
+//result = pc.Test(10000, 1024, 4089);
+//Console.WriteLine($"Average time: {result}ms");
 
-//cc = new ConfigurationClient(communicator);
-//answer = cc.StopService("ping");
+#endregion
+
+#region File Tests
+
+answer = fc.Dir();
+Console.WriteLine(answer);
+double milliseconds = 0;
+for (int i = 0; i < 10; i++)
+{
+    File.Delete(@"E:\Studia\IS2S3\FTPClient\IMG_0248.jpg");
+    DateTime now = DateTime.Now;
+    fc.Get("IMG_0248.jpg", @"E:\Studia\IS2S3\FTPClient");
+    TimeSpan diff = DateTime.Now - now;
+    milliseconds += diff.TotalMilliseconds;
+}
+
+Console.WriteLine($"Average time: {milliseconds / 10}ms");
+
+//answer = fc.Put(@"E:\Studia\IS2S3\FTPClient\IMG_0248.jpg");
 //Console.WriteLine(answer);
 
-//communicator = new TCPCommunicator("localhost", 12345);
-PingClient pc2 = new PingClient(communicator);
-double result2 = pc2.Test(100, 1024, 4089);
-Console.WriteLine($"Average time: {result2}ms");
-//Console.WriteLine($"Average time: {result2}ms");
+#endregion
 
-//PingClient pc2 = new PingClient(communicator2);
-//double result2 = pc2.Test(10, 1024, 4089);
-//Console.WriteLine($"Average time: {result2}ms");
-//FileClient fc = new FileClient(u_communicator);
-////answer = fc.Put(@"D:\Studia\IS2S3\PROSIKO\FTP\raz.txt");
-//answer = fc.Dir();
-//Console.WriteLine(answer);
+#region Message Tests
 
-//u_communicator = new UDPCommunicator("127.0.0.1", 12345);
-//Console.WriteLine(boolAnswer);
-//Console.WriteLine(boolAnswer);
-//FileClient fc = new FileClient(communicator);
-////string answer = fc.Dir();
-////Console.WriteLine(answer);
-//fc.Get("IMG_0248.jpg", @"E:\Studia\IS2S3\FTPClient");
-////fc.Put(@"E:\Studia\IS2S3\FTPClient\IMG_0248.jpg");
-////fc.Put(@"E:\Studia\IS2S3\FTPClient\IMG_0248.jpg");
+//bool ret = mc.Send(["Patryk", "Alice"], "John", "Hello. Nice to meet you");
+//ret = mc.Send(["Patryk"], "Jack", "How's it going?");
 
-//FileClient anotherFileClient = new FileClient(communicator);
-//fc.Dir();
-//fc.Dir();
-//MessageClient mc = new MessageClient(communicator);
-//bool ret = mc.Send(["Patryk", "Alice"], "John", "Witam witam wszystkich. Siemanko");
-
-//string answer = mc.Receive("Patryk");
+//answer = mc.Receive("Patryk");
 
 //Console.WriteLine(answer);
 
@@ -75,3 +98,5 @@ Console.WriteLine($"Average time: {result2}ms");
 //{
 //    Console.WriteLine(user);
 //}
+
+#endregion

@@ -21,37 +21,40 @@ namespace Serwer.Communicators
         public void Stop()
         {
             Console.WriteLine($"Client Closed");
-            if (client.Connected)
-            {
-                client.Close();
-                _onDisconnect(this);
-            }
+            if (!client.Connected) return;
+            client.Close();
+            _onDisconnect(this);
         }
 
         private void Communicate()
         {
-            string? data = null;
-            int len, nl;
+            StringBuilder data = new();
             byte[] bytes = new byte[4096];
             NetworkStream stream = client.GetStream();
             try
             {
+                int len;
                 while ((len = stream.Read(bytes, 0, bytes.Length)) > 0)
                 {
-                    data += Encoding.ASCII.GetString(bytes, 0, len);
-                    while ((nl = data.IndexOf('\n')) != -1)
+                    data.Append(Encoding.ASCII.GetString(bytes, 0, len));
+                    int nl;
+                    while ((nl = data.ToString().IndexOf('\n')) != -1)
                     {
-                        string line = data.Substring(0, nl + 1);
-                        data = data.Substring(nl + 1);
+                        string line = data.ToString(0, nl + 1);
+                        data.Remove(0, nl + 1);
                         string answer = _onCommand(line);
                         byte[] msg = Encoding.ASCII.GetBytes(answer);
                         stream.Write(msg, 0, msg.Length);
                     }
                 }
             }
+            catch (IOException ioEx) when (ioEx.InnerException is SocketException { SocketErrorCode: SocketError.ConnectionReset })
+            {
+                Console.WriteLine("Client Disconnected");
+            }
             catch (Exception e)
             {
-                //Console.WriteLine(e);
+                Console.WriteLine(e);
             }
 
             Stop();

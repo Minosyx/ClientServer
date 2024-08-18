@@ -5,20 +5,22 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Serwer.Attributes;
 
 namespace Serwer.Services
 {
+    [Service("FTP")]
     public class FileService : IServiceModule
     {
-        private readonly string RootDir;
+        private readonly string _rootDir;
 
         private readonly Dictionary<string, Func<string, string>> _actions;
 
         public FileService(string rootDir)
         {
-            RootDir = rootDir;
+            _rootDir = rootDir;
 
-            _actions = new()
+            _actions = new Dictionary<string, Func<string, string>>
             {
                 ["put"] = PutFile,
                 ["get"] = GetFile,
@@ -33,7 +35,7 @@ namespace Serwer.Services
             return _actions[action](data);
         }
 
-        private (string action, string data) ExtractParams(string command)
+        private static (string action, string data) ExtractParams(string command)
         {
             var commandPartIndex = command.IndexOf(' ');
             if (commandPartIndex == -1)
@@ -55,14 +57,14 @@ namespace Serwer.Services
             var fileName = data[..i];
             data = data[(i + 1)..];
             var fileContent = Convert.FromBase64String(data);
-            var path = $@"{RootDir}\{fileName}";
+            var path = $@"{_rootDir}\{fileName}";
             File.WriteAllBytes(path, fileContent);
             return "File saved\n";
         }
 
         private string GetFile(string data)
         {
-            var path = $@"{RootDir}\{data}";
+            var path = $@"{_rootDir}\{data}";
             if (!File.Exists(path))
             {
                 return "File not found\n";
@@ -73,8 +75,8 @@ namespace Serwer.Services
 
         private string GetDir(string data)
         {
-            var files = Directory.GetFiles($@"{RootDir}\{data}");
-            return string.Join('\n', files.Select(f => f[(RootDir.Length + 1)..])) + '\n';
+            var files = Directory.GetFiles($@"{_rootDir}\{data}");
+            return string.Join('\n', files.Select(f => f[(_rootDir.Length + 1)..])) + '\n';
         }
     }
 }

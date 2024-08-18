@@ -11,6 +11,8 @@ namespace Klient.Clients
 {
     public class PingClient(ClientCommunicator communicator) : QAClient(communicator)
     {
+        private readonly ClientCommunicator _communicator = communicator;
+
         public double Test(int amount, int outputLen, int inputLen)
         {
             StringBuilder sb = new($"ping {inputLen} ");
@@ -22,11 +24,9 @@ namespace Klient.Clients
             DateTime now = DateTime.Now;
             for (int i = 0; i < amount; i++)
             {
-                answer = communicator.QA(question);
-                //Console.WriteLine(answer[..20]);
+                answer = _communicator.QA(question);
             }
             TimeSpan diff = DateTime.Now - now;
-            communicator.Close();
 
 #if DEBUG
             Console.WriteLine($"Ping {inputLen} {outputLen} {amount} {diff.TotalMilliseconds / amount}");

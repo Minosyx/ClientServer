@@ -19,7 +19,6 @@ namespace Serwer.Communicators
             _onDisconnect = onDisconnect;
             _thread = new Thread(Watch);
             _thread.Start();
-            //Watch();
         }
 
         public void Stop()
@@ -30,13 +29,15 @@ namespace Serwer.Communicators
 
         private void Watch()
         {
-            FileSystemWatcher watcher = new(path);
-            watcher.NotifyFilter = NotifyFilters.LastWrite;
+            FileSystemWatcher watcher = new(path)
+            {
+                NotifyFilter = NotifyFilters.LastWrite,
+                EnableRaisingEvents = true,
+                IncludeSubdirectories = true,
+                Filter = "*.in",
+            };
             watcher.Changed += OnChanged;
             watcher.Error += OnError;
-            watcher.Filter = "*.in";
-            watcher.IncludeSubdirectories = true;
-            watcher.EnableRaisingEvents = true;
 
             Thread.Sleep(Timeout.Infinite);
         }
@@ -46,37 +47,18 @@ namespace Serwer.Communicators
             string fileContent = File.ReadAllText(filepath);
             string newFile = filepath.Replace(".in", ".out");
             string[] lines = fileContent.Trim().Split('\n');
-            string answer = "";
-            foreach (string line in lines)
-            { 
-                answer += _onCommand(line);
-            }
+            string answer = lines.Aggregate("", (current, line) => current + _onCommand(line));
             File.WriteAllText(newFile, answer);
         }
 
-        private bool isFileReady(string filename)
-        {
-            try
-            {
-                using FileStream fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.None);
-                return true;
-            }
-            catch (IOException)
-            {
-                return false;
-            }
-        }
-
-        private void OnError(object sender, ErrorEventArgs e)
+        private static void OnError(object sender, ErrorEventArgs e)
         {
             Console.WriteLine(e.GetException().Message);
         }
 
         private void OnChanged(object sender, FileSystemEventArgs e)
         {
-            //if (isFileReady(e.FullPath))
-                Communicate(e.FullPath);
-            //Thread.Sleep(1000);
+            Communicate(e.FullPath);
         }
     }
 }

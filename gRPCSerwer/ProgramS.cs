@@ -6,27 +6,25 @@ using Serwer.Services;
 
 Server server = Server.Instance;
 
+#region Services
 
-server.AddServiceModule("ping", new PingService());
-//server.AddServiceModule("ftp", new FileService(@"D:\Studia\IS2S3\PROSIKO\FTPServer"));
+//server.AddServiceModule("ping", new PingService());
+//server.AddServiceModule("ftp", new FileService(@"E:\Studia\IS2S3\FTPServer"));
 //server.AddServiceModule("chat", new MessageService());
+server.AddServiceModule("config", new ConfigurationService(server.AddListener, server.RemoveListener, server.AddServiceModule, server.RemoveServiceModule, server.AddCommunicator));
 
-//server.AddServiceModule("config", new ConfigurationService(server));
-//server.AddListener("tcp", new TCPListener(12345));
+#endregion
 
-server.AddListener("file", new FileListener(@"D:\Studia\IS2S3\PROSIKO\Commands", @"D:\Studia\IS2S3\PROSIKO\Commands2"));
+#region Listeners
 
-//server.AddListener(new RS232Listener("COM2"));
-//server.AddListener(new UDPListener(12345));
+server.AddListener("tcp", new TCPListener(12345));
+//server.AddListener("file", new FileListener(@"E:\Studia\IS2S3\Commands", @"E:\Studia\IS2S3\Commands2"));
+//server.AddListener("rs", new RS232Listener("COM2"));
+//server.AddListener("udp", new UDPListener(12346));
+//server.AddListener("grpc", new gRPCListener());
 
-//var pingService = new PingService();
-//Type type = pingService.GetType();
-//Console.WriteLine(type.AssemblyQualifiedName);
-
-//var fileService = new FileService(@"D:\Studia\IS2S3\PROSIKO\FTPServer");
-//type = fileService.GetType();
-//Console.WriteLine(type.AssemblyQualifiedName);
+#endregion
 
 server.Start();
 
-//Process.GetCurrentProcess().WaitForExit();
+Process.GetCurrentProcess().WaitForExit();

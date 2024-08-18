@@ -1,10 +1,9 @@
-﻿using gRPCSerwer.Communicators;
-using gRPCSerwer.gRPCServices;
-using gRPCSerwer.Protos;
-using Serwer;
+﻿using Serwer.Attributes;
+using Serwer.Communicators;
 
-namespace gRPCSerwer.Listeners
+namespace Serwer.Listeners
 {
+    [Medium("GRPC")]
     public class gRPCListener : IListener
     {
         private CommunicatorD? _onConnect;
@@ -13,8 +12,16 @@ namespace gRPCSerwer.Listeners
         public void Start(CommunicatorD? onConnect)
         {
             _onConnect = onConnect;
+            var communicator = new gRPCCommunicator();
+            _onConnect?.Invoke(communicator);
+
             var builder = WebApplication.CreateBuilder();
-            builder.Services.AddGrpc();
+            builder.Services.AddGrpc(options =>
+            {
+                options.MaxReceiveMessageSize = null;
+                options.MaxSendMessageSize = null;
+            });
+            builder.Services.AddSingleton(communicator);
             app = builder.Build();
             app.MapGrpcService<gRPCCommunicator>();
             app.StartAsync();

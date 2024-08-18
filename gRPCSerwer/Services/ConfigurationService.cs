@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Serwer.Attributes;
 
 namespace Serwer.Services
 {
@@ -11,9 +14,22 @@ namespace Serwer.Services
     {
         private readonly Dictionary<string, Func<string, string>> _actions;
 
-        public ConfigurationService()
+        private readonly MediumD _onMediumAdd;
+        private readonly RemoveD _onMediumRemove;
+        private readonly ServiceD _onServiceAdd;
+        private readonly RemoveD _onServiceRemove;
+        private readonly CommunicatorD _onConnect;
+
+        public ConfigurationService(MediumD onMediumAdd, RemoveD onMediumRemove, ServiceD onServiceAdd,
+            RemoveD onServiceRemove, CommunicatorD onConnect)
         {
-            _actions = new()
+            _onMediumAdd = onMediumAdd;
+            _onMediumRemove = onMediumRemove;
+            _onServiceAdd = onServiceAdd;
+            _onServiceRemove = onServiceRemove;
+            _onConnect = onConnect;
+
+            _actions = new Dictionary<string, Func<string, string>>
             {
                 ["start-service"] = StartService,
                 ["stop-service"] = StopService,
@@ -44,6 +60,14 @@ namespace Serwer.Services
             return _actions[action](data);
         }
 
+        private Type? GetType<T>(string name) where T : Attribute, INamed
+        {
+            return AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(x => x.GetTypes())
+                .FirstOrDefault(t => t.GetCustomAttributes<T>()
+                    .Any(x => x.Name == name.ToUpper()));
+        }
+
         private string StartService(string data)
         {
             if (string.IsNullOrEmpty(data))
@@ -57,7 +81,7 @@ namespace Serwer.Services
             var rest = parameters[2..];
 
             object? serviceInstance;
-            Type? serviceTypeInstance = Type.GetType($"serwer.services.{serviceType}service", false, true);
+            Type? serviceTypeInstance = GetType<ServiceAttribute>(serviceType);
             try
             {
                 serviceInstance = rest.Length == 0
@@ -68,8 +92,7 @@ namespace Serwer.Services
             {
                 throw e.InnerException;
             }
-
-            Server.Instance.AddServiceModule(serviceName, (IServiceModule) serviceInstance);
+            _onServiceAdd(serviceName, (IServiceModule)serviceInstance);
             return $"Service {serviceName} added successfully\n";
         }
 
@@ -80,7 +103,7 @@ namespace Serwer.Services
                 return "Invalid command\n";
             }
 
-            Server.Instance.RemoveServiceModule(data);
+            _onServiceRemove(data);
             return $"Service {data} stopped\n";
         }
 
@@ -91,11 +114,10 @@ namespace Serwer.Services
             var mediumType = parameters[1];
             var rest = parameters[2..];
 
-            object? mediumInstance;
-            Type? mediumTypeInstance = Type.GetType($"serwer.listeners.{mediumType}Listener", false, true);
-            mediumInstance = Activator.CreateInstance(mediumTypeInstance, args: rest);
-            Server.Instance.AddListener(mediumName, (IListener) mediumInstance);
-            ((IListener) mediumInstance).Start(Server.Instance.AddCommunicator);
+            Type? mediumTypeInstance = GetType<MediumAttribute>(mediumType);
+            var mediumInstance = Activator.CreateInstance(mediumTypeInstance, args: rest);
+            _onMediumAdd(mediumName, (IListener)mediumInstance);
+            ((IListener) mediumInstance).Start(_onConnect);
             return $"Medium {mediumType} started successfully\n";
         }
 
@@ -106,8 +128,7 @@ namespace Serwer.Services
                 return "Invalid command\n";
             }
 
-            Server.Instance.RemoveListener(data);
-
+            _onMediumRemove(data);
             return $"Medium {data} stopped\n";
         }
     }

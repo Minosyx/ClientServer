@@ -11,9 +11,9 @@ namespace Serwer
     {
         private static Server? _instance;
 
-        private Dictionary<string, IServiceModule> services = new();
-        private Dictionary<string, IListener> listeners = new();
-        private List<ICommunicator> communicators = new();
+        private readonly Dictionary<string, IServiceModule> _services = [];
+        private readonly Dictionary<string, IListener> _listeners = [];
+        private readonly List<ICommunicator> _communicators = [];
 
         private Server()
         {
@@ -30,43 +30,43 @@ namespace Serwer
 
         public void AddServiceModule(string name, IServiceModule module)
         {
-            services.Add(name, module);
+            _services.TryAdd(name, module);
         }
 
         public void AddCommunicator(ICommunicator communicator)
         {
-            communicators.Add(communicator);
+            _communicators.Add(communicator);
             communicator.Start(ServiceCenter, RemoveCommunicator);
         }
 
         public void AddListener(string name, IListener listener)
         {
-            listeners.Add(name, listener);
+            _listeners.TryAdd(name, listener);
         }
 
         public void RemoveServiceModule(string name)
         {
-            services.Remove(name);
+            _services.Remove(name);
         }
 
         public void RemoveCommunicator(ICommunicator communicator)
         {
-            communicators.Remove(communicator);
+            _communicators.Remove(communicator);
         }
 
         public void RemoveListener(string name)
         {
-            listeners.Remove(name);
+            _listeners.Remove(name);
         }
 
         public void RemoveListener(IListener listener)
         {
-            listeners.Remove(listeners.FirstOrDefault(x => x.Value == listener).Key);
+            _listeners.Remove(_listeners.FirstOrDefault(x => x.Value == listener).Key);
         }
 
         public void Start()
         {
-            foreach (var listener in listeners)
+            foreach (var listener in _listeners)
             {
                 listener.Value.Start(AddCommunicator);
             }
@@ -77,7 +77,7 @@ namespace Serwer
             try
             {
                 var serviceName = GetCommandType(command);
-                var service = services[serviceName];
+                var service = _services[serviceName];
                 return service.AnswerCommand(command);
             }
             catch (Exception e)
@@ -86,7 +86,7 @@ namespace Serwer
             }
         }
 
-        private string GetCommandType(string command)
+        private static string GetCommandType(string command)
         {
             var spaceIndex = command.IndexOf(' ');
             return command[..spaceIndex];

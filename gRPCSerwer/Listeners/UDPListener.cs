@@ -5,32 +5,31 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Serwer.Attributes;
 using Serwer.Communicators;
 
 namespace Serwer.Listeners
 {
+    [Medium("UDP")]
     public class UDPListener : IListener
     {
         private readonly Thread _thread;
-        private int _portNo;
         private CommunicatorD? _onConnect;
-        private UdpClient _server;
-        private bool _shouldTerminate = false;
+        private readonly UdpClient _server;
 
         public UDPListener(int portNo)
         {
-            _portNo = portNo;
             _thread = new Thread(Listen);
-            _server = new UdpClient(_portNo);
+            _server = new UdpClient(portNo);
         }
 
         public UDPListener(string portNo)
         {
             try
             {
-                _portNo = int.Parse(portNo);
+                var portNoInt = int.Parse(portNo);
                 _thread = new Thread(Listen);
-                _server = new UdpClient(_portNo);
+                _server = new UdpClient(portNoInt);
             }
             catch (Exception e)
             {
@@ -41,13 +40,11 @@ namespace Serwer.Listeners
         public void Start(CommunicatorD? onConnect)
         {
             _onConnect = onConnect;
-            _shouldTerminate = false;
             _thread.Start();
         }
 
         public void Stop()
         {
-            _shouldTerminate = true;
             _server.Close();
         }
 

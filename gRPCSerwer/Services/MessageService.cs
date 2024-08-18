@@ -4,19 +4,21 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Serwer.Attributes;
 
 namespace Serwer.Services
 {
+    [Service("CHAT")]
     public class MessageService : IServiceModule
     {
-        private Dictionary<string, Dictionary<string, string>> _messages;
+        private readonly Dictionary<string, Dictionary<string, string>> _messages;
 
         private readonly Dictionary<string, Func<string, string>> _actions;
 
         public MessageService()
         {
             _messages = [];
-            _actions = new()
+            _actions = new Dictionary<string, Func<string, string>>
             {
                 ["msg"] = SendMessage,
                 ["get"] = GetMessage,
@@ -31,7 +33,7 @@ namespace Serwer.Services
             return _actions[action](data);
         }
 
-        private (string action, string data) ExtractParams(string command)
+        private static (string action, string data) ExtractParams(string command)
         {
             var commandPartIndex = command.IndexOf(' ');
             if (commandPartIndex == -1)
@@ -66,7 +68,7 @@ namespace Serwer.Services
 
             foreach (var recipient in recipients)
             {
-                if (!_messages.TryGetValue(recipient, out Dictionary<string, string>? value))
+                if (!_messages.TryGetValue(recipient, out var value))
                 {
                     value = [];
                     _messages[recipient] = value;
@@ -80,27 +82,26 @@ namespace Serwer.Services
         private string GetMessage(string data)
         {
             data = data.Trim();
-            if (!_messages.TryGetValue(data, out Dictionary<string, string>? messages) || messages.Count == 0)
+            if (!_messages.TryGetValue(data, out var messages) || messages.Count == 0)
             {
                 return "No messages\n";
             }
-            else
+
+            StringBuilder sb = new();
+            foreach (var (sender, message) in messages)
             {
-                StringBuilder sb = new();
-                foreach (var (sender, message) in messages)
-                {
-                    sb.Append(sender);
-                    sb.Append(": ");
-                    sb.Append(message);
-                    sb.Append('\n');
-                }
-                return sb.ToString();
+                sb.Append(sender);
+                sb.Append(": ");
+                sb.Append(message);
+                sb.Append(';');
             }
+            sb.Append('\n');
+            return sb.ToString();
         }
 
         private string GetWho(string data)
         {
-            HashSet<string> users = new();
+            HashSet<string> users = [];
             foreach (var (recipient, _) in _messages)
             {
                 users.Add(recipient);

@@ -1,4 +1,5 @@
 ﻿using System.IO.Ports;
+using System.Text;
 
 namespace Serwer.Communicators
 {
@@ -29,17 +30,17 @@ namespace Serwer.Communicators
 
         private void Communicate()
         {
-            string? data = null;
-            int nl;
+            StringBuilder data = new();
             try
             {
                 while (true)
                 {
-                    data += _port.ReadExisting();
-                    while ((nl = data.IndexOf('\n')) != -1)
+                    data.Append(_port.ReadExisting());
+                    int nl;
+                    while ((nl = data.ToString().IndexOf('\n')) != -1)
                     {
-                        string line = data.Substring(0, nl + 1);
-                        data = data.Substring(nl + 1);
+                        string line = data.ToString(0, nl + 1);
+                        data.Remove(0, nl + 1);
                         string answer = _onCommand(line);
                         _port.Write(answer);
                     }

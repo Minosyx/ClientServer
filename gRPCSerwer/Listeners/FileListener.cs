@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Serwer.Attributes;
 using Serwer.Communicators;
 
 namespace Serwer.Listeners
 {
+    [Medium("FILE")]
     public class FileListener(params string[] paths) : IListener
     {
         private CommunicatorD? _onConnect;
@@ -15,7 +17,7 @@ namespace Serwer.Listeners
         public void Start(CommunicatorD? onConnect)
         {
             _onConnect = onConnect;
-            _communicators = new List<FileCommunicator>();
+            _communicators = [];
             foreach (var path in paths)
             {
                 var communicator = new FileCommunicator(path);

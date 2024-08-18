@@ -9,6 +9,8 @@ namespace Klient.Clients
 {
     public class MessageClient(ClientCommunicator communicator) : QAClient(communicator)
     {
+        private readonly ClientCommunicator _communicator = communicator;
+
         public bool Send(string[] recipients, string sender, string message)
         {
             StringBuilder sb = new("chat msg ");
@@ -18,19 +20,29 @@ namespace Klient.Clients
             sb.Append(' ');
             sb.Append(Convert.ToBase64String(Encoding.UTF8.GetBytes(message)));
             sb.Append('\n');
-            string answer = communicator.QA(sb.ToString());
+            string answer = _communicator.QA(sb.ToString());
             return !answer.Contains("error", StringComparison.CurrentCultureIgnoreCase);
         }
 
         public string Receive(string recipient)
         {
-            string answer = communicator.QA($"chat get {recipient}\n");
-            return Encoding.UTF8.GetString(Convert.FromBase64String(answer.Trim()));
+            string answer = _communicator.QA($"chat get {recipient}\n");
+            var output = new StringBuilder();
+            var messages = answer.Trim().Split(';', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var message in messages)
+            {
+                var content = message.Split(':', 2);
+                output.Append($"{content[0].Trim()}: ");
+                output.Append(Encoding.UTF8.GetString(Convert.FromBase64String(content[1].Trim())));
+                output.Append('\n');
+            }
+
+            return output.ToString();
         }
 
         public string[] GetUsers()
         {
-            string answer = communicator.QA("chat who\n");
+            string answer = _communicator.QA("chat who\n");
             return answer.Split('\n', StringSplitOptions.RemoveEmptyEntries);
         }
     }

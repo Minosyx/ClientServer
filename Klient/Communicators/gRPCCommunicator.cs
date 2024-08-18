@@ -10,12 +10,16 @@ namespace Klient.Communicators
 {
     public class gRPCCommunicator : ClientCommunicator
     {
-        private GrpcChannel _channel;
-        private Messenger.MessengerClient _client;
+        private readonly GrpcChannel _channel;
+        private readonly Messenger.MessengerClient _client;
 
         public gRPCCommunicator(string address)
         {
-            _channel = GrpcChannel.ForAddress(address);
+            _channel = GrpcChannel.ForAddress(address, new GrpcChannelOptions()
+            {
+                MaxReceiveMessageSize = null, 
+                MaxSendMessageSize = null
+            });
             _client = new Messenger.MessengerClient(_channel);
         }
 

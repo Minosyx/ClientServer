@@ -25,7 +25,7 @@ namespace Klient.Communicators
 
         public override void Close()
         {
-            //_port.Close();
+            _port.Close();
         }
     }
 }
